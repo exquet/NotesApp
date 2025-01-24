@@ -24,10 +24,13 @@ private:
     QListWidget *noteList;
     QTextEdit *noteEditor;
     QMap<QString, QString> notes; // Карта заметок (название -> текст)
+    int noteCounter; // счетчик для названия
 
 private slots:
     void onNoteSelected();
     void saveCurrentNote();
 
+    void on_delete_button_clicked();
+    void on_add_button_clicked();
 };
 #endif // MAINWINDOW_H
