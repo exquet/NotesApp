@@ -13,6 +13,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(noteList, &QListWidget::itemClicked, this, &MainWindow::onNoteSelected);
     connect(noteEditor, &QTextEdit::textChanged, this, &MainWindow::saveCurrentNote);
+    connect(noteList, &QListWidget::itemChanged, this, &MainWindow::onNoteTitleChanged);
+    connect(noteList, &QListWidget::itemDoubleClicked, this, &MainWindow::onNoteDoubleClicked);
+
+    for (int i = 0; i < noteList->count(); ++i) {  // делаем все элементы QListWidget редактируемыми
+        QListWidgetItem *item = noteList->item(i);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+    }
 
     for (const QString &title : notes.keys()) { // проход по всем ключам(title) в карте(notes)
         noteList->addItem(title); // добавление названий в QListWidget
@@ -58,12 +65,59 @@ void MainWindow::on_delete_button_clicked()
     }
 }
 
+void MainWindow::onNoteTitleChanged(QListWidgetItem *item)
+{
+    if (!item) {
+        return; // если элемент не выбран, ничего не делаем
+    }
+
+    QString newTitle = item->text(); // получаем новое название заметки введенное пользователем
+
+    if (newTitle.isEmpty()) { // введено пустая строка
+        QMessageBox::warning(this, tr("Ошибка"), tr("Название заметки не может быть пустым!"));
+        item->setText(oldTitle); // возвращает старое название заметки (oldTitle) в элемент
+        return;
+    }
+
+    if (notes.contains(newTitle)) { // проверяет, существует ли заметка с названием newTitle
+        QMessageBox::warning(this, tr("Ошибка"), tr("Заметка с таким названием уже существует!"));
+        item->setText(oldTitle); // Возвращаем старое название
+        return;
+    }
+
+    QString noteContent = notes[oldTitle]; // сохраняем текст заметки
+    notes.remove(oldTitle); // удаляем старую заметку
+    notes[newTitle] = noteContent; // добавляем заметку с новым названием и старым текстом
+
+    if (noteList->currentItem() == item) { // отображения текста измененной заметки если он выбранна
+        noteEditor->setText(notes[newTitle]);
+    }
+}
+void MainWindow::onNoteDoubleClicked(QListWidgetItem *item)
+{
+    if (item) {
+        oldTitle = item->text(); // сохраняем старое название перед редактированием
+    }
+}
+
 
 void MainWindow::on_add_button_clicked()
 {
     QString newNoteTitle = "New Note " + QString::number(noteCounter++); // счетчик для названия
-    notes[newNoteTitle] = ""; // создание новой Qmap
-    noteList->addItem(newNoteTitle); // добавление item в QListWidget
+    notes[newNoteTitle] = ""; // добавление новой заметки в QMap
+    QListWidgetItem *newItem = new QListWidgetItem(newNoteTitle); // создание нового элемента для QListWidget
+
+
+    /*  Делаем элемент редактируемым
+        newItem->flags() возвращает текущие флаги элемента(возможность выбора, возможность перетаскивания и т.д.)
+        Qt::ItemIsEditable — это флаг, который позволяет редактировать текст элемента
+        | - добавляет флаг Qt::ItemIsEditable к текущим флагам элемента.
+    */
+    newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
+
+
+    // Добавляем элемент в QListWidget
+    noteList->addItem(newItem);
     noteList->setCurrentRow(noteList->count() - 1); // выбираем новую заметку в списке (size - 1 = last item)
     noteEditor->clear();
     noteEditor->setFocus();
