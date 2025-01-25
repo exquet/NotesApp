@@ -5,6 +5,8 @@
 #include <QTextEdit>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QFile>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,5 +37,7 @@ private slots:
     void on_add_button_clicked();
     void onNoteTitleChanged(QListWidgetItem *item);
     void onNoteDoubleClicked(QListWidgetItem *item);
+    void saveNotesToFile();
+    void loadNotesFromFile();
 };
 #endif // MAINWINDOW_H

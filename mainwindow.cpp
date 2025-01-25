@@ -24,10 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
     for (const QString &title : notes.keys()) { // проход по всем ключам(title) в карте(notes)
         noteList->addItem(title); // добавление названий в QListWidget
     }
+
+    loadNotesFromFile();
 }
 
 MainWindow::~MainWindow()
 {
+    saveNotesToFile();
     delete ui;
 }
 
@@ -123,3 +126,39 @@ void MainWindow::on_add_button_clicked()
     noteEditor->setFocus();
 }
 
+void MainWindow::saveNotesToFile(){
+    QFile file("notes.txt");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { // Открываем файл для записи
+        QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось открыть файл для записи!"));
+        return;
+    }
+    QTextStream out(&file);
+
+    for (const QString &title : notes.keys()) { // Проходим по всем заметкам
+        out << title << "|" << notes[title] << "\n"; // Записываем название и текст заметки
+    }
+
+    file.close();
+}
+
+void MainWindow::loadNotesFromFile(){
+    QFile file("notes.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Открываем файл для чтения
+        // Если файл не существует, просто выходим из метода
+        return;
+    }
+
+    QTextStream in(&file); // Создаем поток для чтения из файла
+    while (!in.atEnd()) { // Читаем файл до конца
+        QString line = in.readLine(); // Читаем строку
+        QStringList parts = line.split("|"); // Разделяем строку на название и текст заметки
+        if (parts.size() == 2) { // Проверяем, что строка содержит и название, и текст
+            QString title = parts[0];
+            QString content = parts[1];
+            notes[title] = content; // Добавляем заметку в QMap
+            noteList->addItem(title); // Добавляем название заметки в QListWidget
+        }
+    }
+
+    file.close(); // Закрываем файл
+}
