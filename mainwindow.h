@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,6 +31,7 @@ private:
     int noteCounter; // счетчик для названия
     QString oldTitle;
 
+
 private slots:
     void onNoteSelected();
     void saveCurrentNote();
@@ -39,5 +41,7 @@ private slots:
     void onNoteDoubleClicked(QListWidgetItem *item);
     void saveNotesToFile();
     void loadNotesFromFile();
+    void increaseFontSize();
+    void decreaseFontSize();
 };
 #endif // MAINWINDOW_H

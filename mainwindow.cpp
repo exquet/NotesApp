@@ -11,10 +11,14 @@ MainWindow::MainWindow(QWidget *parent)
     noteList = findChild<QListWidget *>("listWidget");
     noteEditor = findChild<QTextEdit *>("textEdit");
 
+
     connect(noteList, &QListWidget::itemClicked, this, &MainWindow::onNoteSelected);
     connect(noteEditor, &QTextEdit::textChanged, this, &MainWindow::saveCurrentNote);
     connect(noteList, &QListWidget::itemChanged, this, &MainWindow::onNoteTitleChanged);
     connect(noteList, &QListWidget::itemDoubleClicked, this, &MainWindow::onNoteDoubleClicked);
+    connect(ui->increaseFontButton, &QToolButton::clicked, this, &MainWindow::increaseFontSize);
+    connect(ui->decreaseFontButton, &QToolButton::clicked, this, &MainWindow::decreaseFontSize);
+
 
     for (int i = 0; i < noteList->count(); ++i) {  // делаем все элементы QListWidget редактируемыми
         QListWidgetItem *item = noteList->item(i);
@@ -127,15 +131,15 @@ void MainWindow::on_add_button_clicked()
 }
 
 void MainWindow::saveNotesToFile(){
-    QFile file("notes.txt");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { // Открываем файл для записи
+    QFile file("notes.txt");  // создание файла
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {// открываем файл для записи, с флагом записи текста
         QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось открыть файл для записи!"));
         return;
     }
     QTextStream out(&file);
 
-    for (const QString &title : notes.keys()) { // Проходим по всем заметкам
-        out << title << "|" << notes[title] << "\n"; // Записываем название и текст заметки
+    for (const QString &title : notes.keys()) { // проходим по всем заметкам
+        out << title << "|" << notes[title] << "\n"; // название | текст \n
     }
 
     file.close();
@@ -143,22 +147,44 @@ void MainWindow::saveNotesToFile(){
 
 void MainWindow::loadNotesFromFile(){
     QFile file("notes.txt");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Открываем файл для чтения
-        // Если файл не существует, просто выходим из метода
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // открываем файл для чтения, с флагом записи текстом
         return;
     }
 
-    QTextStream in(&file); // Создаем поток для чтения из файла
-    while (!in.atEnd()) { // Читаем файл до конца
-        QString line = in.readLine(); // Читаем строку
-        QStringList parts = line.split("|"); // Разделяем строку на название и текст заметки
-        if (parts.size() == 2) { // Проверяем, что строка содержит и название, и текст
-            QString title = parts[0];
-            QString content = parts[1];
-            notes[title] = content; // Добавляем заметку в QMap
-            noteList->addItem(title); // Добавляем название заметки в QListWidget
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList parts = line.split("|"); // разделяем строку на части с помощью символа |
+        if (parts.size() == 2) { // проверяем, что строка содержит и название, и текст
+            QString title = parts[0]; // назавание
+            QString content = parts[1]; // текст
+            notes[title] = content;
+            noteList->addItem(title);
         }
     }
 
-    file.close(); // Закрываем файл
+    file.close();
+}
+
+void MainWindow::increaseFontSize(){
+    QTextCursor cursor = noteEditor->textCursor(); // текстовый курсор
+    QTextCharFormat format; // класс который описывает форматирование текста
+
+    int fontSize = noteEditor->font().pointSize(); // текущий размер шрифта
+
+    format.setFontPointSize(fontSize + 1);
+    cursor.mergeCharFormat(format); // метод, который применяет новое форматирование к тексту
+    noteEditor->mergeCurrentCharFormat(format); // форматирование всего текста в QTextEdit
+}
+
+void MainWindow::decreaseFontSize(){
+    QTextCursor cursor = noteEditor->textCursor();
+    QTextCharFormat format;
+
+    int fontSize = noteEditor->font().pointSize();
+
+    format.setFontPointSize(fontSize - 1);
+    cursor.mergeCharFormat(format);
+    noteEditor->mergeCurrentCharFormat(format);
 }
