@@ -156,6 +156,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QSpinBox" name="fontSize_SpinBox">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>

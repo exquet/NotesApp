@@ -19,7 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(noteList, &QListWidget::itemDoubleClicked, this, &MainWindow::onNoteDoubleClicked);
     connect(ui->increaseFontButton, &QToolButton::clicked, this, &MainWindow::increaseFontSize);
     connect(ui->decreaseFontButton, &QToolButton::clicked, this, &MainWindow::decreaseFontSize);
+    connect(ui->fontSize_SpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeFontSizeSpinBox);
 
+    ui->fontSize_SpinBox->setValue(currentFontSize);
+    ui->fontSize_SpinBox->setMinimum(1);
 
     for (int i = 0; i < noteList->count(); ++i) {  // делаем все элементы QListWidget редактируемыми
         QListWidgetItem *item = noteList->item(i);
@@ -31,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     loadNotesFromFile();
-
 
 }
 
@@ -171,16 +173,18 @@ void MainWindow::loadNotesFromFile(){
 }
 
 void MainWindow::increaseFontSize(){
-    if (currentFontSize < 64) {
+    if (currentFontSize < 99) {
         currentFontSize++;
         applyFontSizeToAllText();
+        updateFontSizeSpinBox();
     }
 }
 
 void MainWindow::decreaseFontSize(){
-    if (currentFontSize > 6) {
+    if (currentFontSize > 1) {
         currentFontSize--;
         applyFontSizeToAllText();
+        updateFontSizeSpinBox();
     }
 }
 
@@ -189,4 +193,13 @@ void MainWindow::applyFontSizeToAllText(){
     font.setPointSize(currentFontSize);
     noteEditor->setFont(font); // применение к QTextEdit
     noteEditor->setPlainText(noteEditor->toPlainText()); // обновление текста
+}
+
+void MainWindow::changeFontSizeSpinBox(int value){
+    currentFontSize = value;
+    applyFontSizeToAllText();
+}
+
+void MainWindow::updateFontSizeSpinBox(){
+    ui->fontSize_SpinBox->setValue(currentFontSize);
 }

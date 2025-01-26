@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QFont>
 #include <QToolButton>
+#include <QSpinBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -46,5 +47,7 @@ private slots:
     void increaseFontSize();
     void decreaseFontSize();
     void applyFontSizeToAllText();
+    void changeFontSizeSpinBox(int value);
+    void updateFontSizeSpinBox();
 };
 #endif // MAINWINDOW_H
