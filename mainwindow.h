@@ -6,7 +6,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QFile>
-#include <QTextStream>
+#include <QFont>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -30,6 +30,8 @@ private:
     QMap<QString, QString> notes; // Карта заметок (название -> текст)
     int noteCounter; // счетчик для названия
     QString oldTitle;
+    int currentFontSize;
+
 
 
 private slots:
@@ -43,5 +45,6 @@ private slots:
     void loadNotesFromFile();
     void increaseFontSize();
     void decreaseFontSize();
+    void applyFontSizeToAllText();
 };
 #endif // MAINWINDOW_H

@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , noteCounter(1) // инициализация переменной из header
+    , currentFontSize(12)
 {
     ui->setupUi(this);
 
@@ -30,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     loadNotesFromFile();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -168,23 +171,22 @@ void MainWindow::loadNotesFromFile(){
 }
 
 void MainWindow::increaseFontSize(){
-    QTextCursor cursor = noteEditor->textCursor(); // текстовый курсор
-    QTextCharFormat format; // класс который описывает форматирование текста
-
-    int fontSize = noteEditor->font().pointSize(); // текущий размер шрифта
-
-    format.setFontPointSize(fontSize + 1);
-    cursor.mergeCharFormat(format); // метод, который применяет новое форматирование к тексту
-    noteEditor->mergeCurrentCharFormat(format); // форматирование всего текста в QTextEdit
+    if (currentFontSize < 64) {
+        currentFontSize++;
+        applyFontSizeToAllText();
+    }
 }
 
 void MainWindow::decreaseFontSize(){
-    QTextCursor cursor = noteEditor->textCursor();
-    QTextCharFormat format;
+    if (currentFontSize > 6) {
+        currentFontSize--;
+        applyFontSizeToAllText();
+    }
+}
 
-    int fontSize = noteEditor->font().pointSize();
-
-    format.setFontPointSize(fontSize - 1);
-    cursor.mergeCharFormat(format);
-    noteEditor->mergeCurrentCharFormat(format);
+void MainWindow::applyFontSizeToAllText(){
+    QFont font = noteEditor->font();
+    font.setPointSize(currentFontSize);
+    noteEditor->setFont(font); // применение к QTextEdit
+    noteEditor->setPlainText(noteEditor->toPlainText()); // обновление текста
 }
