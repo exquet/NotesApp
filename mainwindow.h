@@ -9,6 +9,7 @@
 #include <QFont>
 #include <QToolButton>
 #include <QSpinBox>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,8 +33,9 @@ private:
     int noteCounter; // счетчик для названия
     QString oldTitle;
     int currentFontSize;
+    QMap<QString, QDateTime> noteDates;
 
-
+    void updateDateLabel(const QString &title);
 
 private slots:
     void onNoteSelected();

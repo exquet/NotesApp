@@ -48,6 +48,7 @@ void MainWindow::onNoteSelected(){
     if (item) {
         QString title = item->text(); // получние названия заметки
         noteEditor->setText(notes[title]); // устанавливает текст заметки (из notes) в текстовый редактор
+        updateDateLabel(title);
     }
 }
 
@@ -56,6 +57,8 @@ void MainWindow::saveCurrentNote(){
     if (item) {
         QString title = item->text();
         notes[title] = noteEditor->toPlainText(); // cохраняет текст из текстового редактора в notes по ключу(название)
+        noteDates[title] = QDateTime::currentDateTime(); // Обновляем дату последнего изменения
+        updateDateLabel(title); // Обновляем дату на QLabel
     }
 }
 
@@ -117,6 +120,7 @@ void MainWindow::on_add_button_clicked()
 {
     QString newNoteTitle = "New Note " + QString::number(noteCounter++); // счетчик для названия
     notes[newNoteTitle] = ""; // добавление новой заметки в QMap
+    noteDates[newNoteTitle] = QDateTime::currentDateTime(); // Устанавливаем текущую дату и время
     QListWidgetItem *newItem = new QListWidgetItem(newNoteTitle); // создание нового элемента для QListWidget
 
 
@@ -128,11 +132,12 @@ void MainWindow::on_add_button_clicked()
     newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
 
 
-    // Добавляем элемент в QListWidget
+    // добавляем элемент в QListWidget
     noteList->addItem(newItem);
     noteList->setCurrentRow(noteList->count() - 1); // выбираем новую заметку в списке (size - 1 = last item)
     noteEditor->clear();
     noteEditor->setFocus();
+    updateDateLabel(newNoteTitle);
 }
 
 void MainWindow::saveNotesToFile(){
@@ -202,4 +207,14 @@ void MainWindow::changeFontSizeSpinBox(int value){
 
 void MainWindow::updateFontSizeSpinBox(){
     ui->fontSize_SpinBox->setValue(currentFontSize);
+}
+
+void MainWindow::updateDateLabel(const QString &title) {
+    if (noteDates.contains(title)) {
+        QDateTime dateTime = noteDates[title];
+        QString dateString = dateTime.toString("dd.MM.yyyy"); // Форматируем дату в нужный формат
+        ui->dateLabel->setText(dateString); // Устанавливаем текст на QLabel
+    } else {
+        ui->dateLabel->clear(); // Если даты нет, очищаем QLabel
+    }
 }
