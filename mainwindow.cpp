@@ -149,7 +149,8 @@ void MainWindow::saveNotesToFile(){
     QTextStream out(&file);
 
     for (const QString &title : notes.keys()) { // проходим по всем заметкам
-        out << title << "|" << notes[title] << "\n"; // название | текст \n
+        out << title << "|" << notes[title] << "|" << noteDates[title].toString(Qt::ISODate) << "\n";
+        // название | текст | дата \n
     }
 
     file.close();
@@ -166,10 +167,12 @@ void MainWindow::loadNotesFromFile(){
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList parts = line.split("|"); // разделяем строку на части с помощью символа |
-        if (parts.size() == 2) { // проверяем, что строка содержит и название, и текст
+        if (parts.size() == 3) { // проверяем, что строка содержит и название, и текст
             QString title = parts[0]; // назавание
             QString content = parts[1]; // текст
+            QDateTime dateTime = QDateTime::fromString(parts[2], Qt::ISODate); // дата
             notes[title] = content;
+            noteDates[title] = dateTime;
             noteList->addItem(title);
         }
     }
