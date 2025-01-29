@@ -148,9 +148,10 @@ void MainWindow::saveNotesToFile(){
     }
     QTextStream out(&file);
 
-    for (const QString &title : notes.keys()) { // проходим по всем заметкам
-        out << title << "|" << notes[title] << "|" << noteDates[title].toString(Qt::ISODate) << "\n";
-        // название | текст | дата \n
+    for (const QString &title : notes.keys()) {
+        // заменяем все переносы строк в тексте на специальную метку "\n" -> "\\n"
+        QString content = notes[title].replace("\n", "\\n");
+        out << title << "|" << content << "|" << noteDates[title].toString(Qt::ISODate) << "\n";
     }
 
     file.close();
@@ -166,17 +167,17 @@ void MainWindow::loadNotesFromFile(){
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-        QStringList parts = line.split("|"); // разделяем строку на части с помощью символа |
-        if (parts.size() == 3) { // проверяем, что строка содержит и название, и текст
-            QString title = parts[0]; // назавание
-            QString content = parts[1]; // текст
-            QDateTime dateTime = QDateTime::fromString(parts[2], Qt::ISODate); // дата
+        QStringList parts = line.split("|");
+        if (parts.size() == 3) {
+            QString title = parts[0];
+            // Восстанавливаем переносы строк из метки "\\n" -> "\n"
+            QString content = parts[1].replace("\\n", "\n");
+            QDateTime dateTime = QDateTime::fromString(parts[2], Qt::ISODate);
             notes[title] = content;
             noteDates[title] = dateTime;
             noteList->addItem(title);
         }
     }
-
     file.close();
 }
 
@@ -216,8 +217,9 @@ void MainWindow::updateDateLabel(const QString &title) {
     if (noteDates.contains(title)) {
         QDateTime dateTime = noteDates[title];
         QString dateString = dateTime.toString("dd.MM.yyyy"); // Форматируем дату в нужный формат
-        ui->dateLabel->setText(dateString); // Устанавливаем текст на QLabel
-    } else {
-        ui->dateLabel->clear(); // Если даты нет, очищаем QLabel
+        ui->dateLabel->setText(dateString); // устанавливаем текст на QLabel
+    }
+    else {
+        ui->dateLabel->clear(); // если даты нет, очищаем QLabel
     }
 }
